@@ -34,3 +34,5 @@ Publish whether the robot is charging or not.
 
 ## TODO
 - [ ] set up parameters for reconfiguration
+- [ ] custom msg for all state information
+- [ ] 
