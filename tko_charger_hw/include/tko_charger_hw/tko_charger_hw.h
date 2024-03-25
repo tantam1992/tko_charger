@@ -26,6 +26,8 @@ private:
     const uint8_t COMMAND_LENGTH = 6;
     uint8_t hex_cmd[6] = {0};
     uint8_t receive_hex[26] = {0};
+    // Dummy Data
+    // uint8_t receive_hex[26] = {0x50, 0x03, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x8B, 0xD9, 0x00, 0x4E, 0x8C, 0x69, 0x36, 0x78, 0x3C, 0xFC, 0x00, 0x00, 0xFE, 0xBF};
 
     // PROTOCOL
     uint8_t ID = 0x00;
@@ -118,6 +120,16 @@ public:
     uint8_t get_battery_soc();
 
     /**
+     * @return percentage of battery charge based on batter_soc
+     * State of charge: 0 – 3 
+     * 0 = 75%-100% 
+     * 1 = 50%-75% 
+     * 2 = 25%-50% 
+     * 3 = 0%-25%
+     */
+    float get_battery_percentage();
+
+    /**
      * @return Warning of the battery 
      * Uvw: under voltage warning 
      * Ovw: over voltage warning 
@@ -164,36 +176,36 @@ public:
      * @return Voltage of Battery (mV) 
      * 16 bits
      */
-    uint16_t get_battery_voltage();
+    float get_battery_voltage();
 
     /**
      * @return Charger Voltage (mV) 
      * 16 bits
      */
-    uint16_t get_charger_voltage();
+    float get_charger_voltage();
 
     /**
      * @return Voltage of Load on Battery (mV) 
      * 16 bits
      */
-    uint16_t get_load_voltage();
+    float get_load_voltage();
 
     /**
      * @return Charging Current (No available) 
      */
-    int get_charging_current();
+    float get_charging_current();
 
     /**
      * @return Load Current (No available) 
      * 16 bits
      */
-    int get_load_current();
+    float get_load_current();
 
     /**
      * @return Temperature (No available) 
      * 16 bits
      */
-    uint16_t get_temperature();
+    float get_temperature();
 };
 
 #endif

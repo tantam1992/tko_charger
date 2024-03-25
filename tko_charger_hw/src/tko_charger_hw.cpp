@@ -78,6 +78,24 @@ uint8_t TKO_CHARGER::get_battery_soc()
     return receive_hex[5];
 }
 
+float TKO_CHARGER::get_battery_percentage()
+{
+    uint8_t battery_soc = get_battery_soc();
+    switch (battery_soc) {
+        case 0:
+            return 1.0;
+        case 1:
+            return 0.75;
+        case 2:
+            return 0.5;
+        case 3:
+            return 0.25;
+        default:
+            return 0.0;
+    }
+
+}
+
 uint8_t TKO_CHARGER::get_battery_warning()
 {
     return receive_hex[6];
@@ -108,41 +126,41 @@ uint8_t TKO_CHARGER::get_charger_error()
     return receive_hex[11];
 }
 
-uint16_t TKO_CHARGER::get_battery_voltage()
+float TKO_CHARGER::get_battery_voltage()
 {
     uint16_t battery_voltage = receive_hex[13] + (receive_hex[12] << 8);
-    return battery_voltage;
+    return (float)battery_voltage;
 }
 
-uint16_t TKO_CHARGER::get_charger_voltage()
+float TKO_CHARGER::get_charger_voltage()
 {
     uint16_t charger_voltage = receive_hex[15] + (receive_hex[14] << 8);
-    return charger_voltage;
+    return (float)charger_voltage;
 }
 
-uint16_t TKO_CHARGER::get_load_voltage()
+float TKO_CHARGER::get_load_voltage()
 {
     uint16_t load_voltage = receive_hex[17] + (receive_hex[16] << 8);
-    return load_voltage;
+    return (float)load_voltage;
 }
 
-int TKO_CHARGER::get_charging_current()
+float TKO_CHARGER::get_charging_current()
 {
     uint16_t charging_current = receive_hex[19] + (receive_hex[18] << 8);
-    return ((int)charging_current - 8190) * 16;
+    return ((float)charging_current - 8190.f) * 0.016;
 }
 
-int TKO_CHARGER::get_load_current()
+float TKO_CHARGER::get_load_current()
 {
     uint16_t load_current = receive_hex[21] + (receive_hex[20] << 8);
-    return ((int)load_current - 1638) * 16;
+    return ((float)load_current - 1638.f) * 0.016;
 }
 
 
-uint16_t TKO_CHARGER::get_temperature()
+float TKO_CHARGER::get_temperature()
 {
     uint16_t temperature = receive_hex[23] + (receive_hex[22] << 8);
-    return temperature;
+    return (float)temperature;
 }
 
 // *****************************************************
