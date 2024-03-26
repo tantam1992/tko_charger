@@ -135,13 +135,13 @@ float TKO_CHARGER::get_battery_voltage()
 float TKO_CHARGER::get_charger_voltage()
 {
     uint16_t charger_voltage = receive_hex[15] + (receive_hex[14] << 8);
-    return (float)charger_voltage;
+    return float(charger_voltage)/1000.f;
 }
 
 float TKO_CHARGER::get_load_voltage()
 {
     uint16_t load_voltage = receive_hex[17] + (receive_hex[16] << 8);
-    return (float)load_voltage;
+    return (float)load_voltage/1000.f;
 }
 
 float TKO_CHARGER::get_charging_current()

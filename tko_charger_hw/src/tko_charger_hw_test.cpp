@@ -22,12 +22,12 @@ int main(void)
         printf("emergency button: %d\n", charger.get_emergency_button());
         printf("manual break button: %d\n", charger.get_manual_break_button());
         printf("charger error: %d\n", charger.get_charger_error());
-        printf("battery voltage [mV]: %d\n", charger.get_battery_voltage());
-        printf("charger voltage [mV]: %d\n", charger.get_charger_voltage());
-        printf("load voltage [mV]: %d\n", charger.get_load_voltage());
-        printf("charging current [mA]: %d\n", charger.get_charging_current());
-        printf("load current [mA]: %d\n", charger.get_load_current());
-        printf("Temperature [NA]: %d\n", charger.get_temperature());
+        printf("battery voltage [V]: %f\n", charger.get_battery_voltage());
+        printf("charger voltage [V]: %f\n", charger.get_charger_voltage());
+        printf("load voltage [V]: %f\n", charger.get_load_voltage());
+        printf("charging current [A]: %f\n", charger.get_charging_current());
+        printf("load current [A]: %f\n", charger.get_load_current());
+        printf("Temperature [NA]: %f\n", charger.get_temperature());
     }
     
 

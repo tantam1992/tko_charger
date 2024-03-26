@@ -23,12 +23,14 @@ void TKOChargerRos::init_battery_state()
 void TKOChargerRos::init_charger_hw()
 {
   serial_port = "/dev/charger";
-  // charger_hw.begin(serial_port, 115200, 0x50);
+  charger_hw.begin(serial_port, 115200, 0x50);
   ROS_INFO_STREAM("Charger board Serial Port open success, com_port_name= " << serial_port);
 }
 
 void TKOChargerRos::Timer1HzCallbackCallback(const ros::TimerEvent &event)
 {
+  charger_hw.read(0x00,20);
+
   battery_msg.header.stamp = ros::Time::now();
   battery_msg.voltage = charger_hw.get_charger_voltage();
   battery_msg.temperature = charger_hw.get_temperature();
@@ -45,6 +47,7 @@ void TKOChargerRos::Timer1HzCallbackCallback(const ros::TimerEvent &event)
 
 void TKOChargerRos::Timer10HzCallbackCallback(const ros::TimerEvent &event)
 {
+  charger_hw.read(0x03,1);
   charger_detected.data = charger_hw.get_charge_detected();
   charger_detected_pub.publish(charger_detected);
 }
