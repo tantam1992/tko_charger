@@ -129,7 +129,7 @@ uint8_t TKO_CHARGER::get_charger_error()
 float TKO_CHARGER::get_battery_voltage()
 {
     uint16_t battery_voltage = receive_hex[13] + (receive_hex[12] << 8);
-    return (float)battery_voltage;
+    return (float)battery_voltage/1000.f;
 }
 
 float TKO_CHARGER::get_charger_voltage()
