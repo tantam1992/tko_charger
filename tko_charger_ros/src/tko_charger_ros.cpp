@@ -60,7 +60,7 @@ void TKOChargerRos::Timer1HzCallbackCallback(const ros::TimerEvent &event)
   charger_state.emergency_button = charger_hw.get_emergency_button();
   charger_state.manual_break = charger_hw.get_manual_break_button();
   charger_state.charger_error = charger_hw.get_charger_error();
-  charger_state.battery_voltage = charger_hw.get_charger_voltage();
+  charger_state.battery_voltage = charger_hw.get_battery_voltage();
   charger_state.charger_voltage = charger_hw.get_charger_voltage();
   charger_state.load_voltage = charger_hw.get_load_voltage();
   charger_state.charging_current = charger_hw.get_charging_current();
