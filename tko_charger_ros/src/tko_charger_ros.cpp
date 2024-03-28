@@ -39,6 +39,7 @@ void TKOChargerRos::Timer1HzCallbackCallback(const ros::TimerEvent &event)
 {
   charger_hw.read(0x00,20);
 
+  // battery topic
   battery_msg.header.stamp = ros::Time::now();
   battery_msg.voltage = charger_hw.get_charger_voltage();
   battery_msg.temperature = charger_hw.get_temperature();
@@ -50,6 +51,7 @@ void TKOChargerRos::Timer1HzCallbackCallback(const ros::TimerEvent &event)
   battery_msg.present = charger_hw.get_charge_detected();
   battery_state_pub.publish(battery_msg);
 
+  //state topic
   charger_state.header.stamp = ros::Time::now();
   charger_state.battery_soc = charger_hw.get_battery_percentage();
   charger_state.battery_warning = charger_hw.get_battery_warning_string();
