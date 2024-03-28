@@ -4,13 +4,14 @@ project(tko_charger_ros)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   tko_charger_hw
+  tko_charger_interfaces
 )
 
 
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES tko_charger_ros
- CATKIN_DEPENDS roscpp tko_charger_hw
+ CATKIN_DEPENDS roscpp tko_charger_hw tko_charger_interfaces
 #  DEPENDS system_lib
 )
 

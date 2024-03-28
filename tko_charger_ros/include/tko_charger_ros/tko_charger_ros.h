@@ -5,8 +5,7 @@
 #include "sensor_msgs/BatteryState.h"
 #include "std_msgs/Bool.h"
 #include "tko_charger_hw/tko_charger_hw.h"
-
-TKO_CHARGER charger_hw;
+#include "tko_charger_interfaces/TkoCharger.h"
 
 class TKOChargerRos
 {
@@ -25,9 +24,11 @@ private:
 
     sensor_msgs::BatteryState battery_msg;
     std_msgs::Bool charger_detected;
+    tko_charger_interfaces::TkoCharger charger_state;
 
     ros::Publisher battery_state_pub;
     ros::Publisher charger_detected_pub;
+    ros::Publisher charger_state_pub;
 
     std::string serial_port;
 };

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(template_interfaces)
+project(tko_charger_interfaces)
 
 find_package(catkin REQUIRED COMPONENTS
 roscpp
@@ -24,7 +24,7 @@ generate_messages(
 
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES template_interfaces
+ #  LIBRARIES tko_charger_interfaces
  CATKIN_DEPENDS std_msgs message_runtime rospy roscpp
 #  DEPENDS system_lib
 )

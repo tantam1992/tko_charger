@@ -1,4 +1,5 @@
-Header header
+std_msgs/Header header
+
 uint8 version
 float32 batter_soc
 string battery_warning

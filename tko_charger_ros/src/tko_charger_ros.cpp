@@ -16,7 +16,10 @@ void TKOChargerRos::init_battery_state()
   battery_state_pub = nh_.advertise<sensor_msgs::BatteryState>("battery", 1);
   battery_msg.header.frame_id = "tko_battery";
 
-  charger_detected_pub = nh_.advertise<std_msgs::Bool>("charger_detected", 1);
+  charger_state_pub = nh_.advertise<sensor_msgs::BatteryState>("state", 1);
+  battery_msg.header.frame_id = "tko_battery";
+
+  charger_detected_pub = nh_.advertise<tko_charger_interfaces::TkoCharger>("charger_detected", 1);
 
 }
 
