@@ -7,6 +7,8 @@
 #include "tko_charger_hw/tko_charger_hw.h"
 #include "tko_charger_interfaces/TkoCharger.h"
 
+
+TKO_CHARGER charger_hw;
 class TKOChargerRos
 {
 public:
