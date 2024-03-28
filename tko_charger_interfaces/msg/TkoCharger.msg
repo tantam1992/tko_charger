@@ -1,7 +1,7 @@
 std_msgs/Header header
 
 uint8 version
-float32 batter_soc
+float32 battery_soc
 string battery_warning
 bool charger_detected
 uint8 charger_step

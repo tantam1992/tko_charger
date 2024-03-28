@@ -101,6 +101,28 @@ uint8_t TKO_CHARGER::get_battery_warning()
     return receive_hex[6];
 }
 
+std::string TKO_CHARGER::get_battery_warning_string()
+{
+    uint8_t error_code = get_battery_warning();
+    if (error_code == 0)
+    {
+        return "No Warning";
+    }
+    else if (error_code == 1)
+    {
+        return "over temperature warning";
+    }
+    else if (error_code == 2){
+        return "over voltage warning";
+    }
+    else if (error_code == 4){
+        return "under voltage warning";
+    }
+    else {
+        return "Unknown Warning";
+    }
+}
+
 uint8_t TKO_CHARGER::get_charge_detected()
 {
     return receive_hex[7];

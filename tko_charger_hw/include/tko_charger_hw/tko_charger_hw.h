@@ -139,6 +139,15 @@ public:
     uint8_t get_battery_warning();
 
     /**
+     * @return Warning of the battery 
+     * Uvw: under voltage warning 
+     * Ovw: over voltage warning 
+     * Otw: over temperature warning 
+     * (uint8_t)((battery_uvw<<2)|(battery_ovw<<1)|(battery_otw))
+     */
+    std::string get_battery_warning_string();
+
+    /**
      * @return 0: no detect 1: detected
      */
     uint8_t get_charge_detected();
