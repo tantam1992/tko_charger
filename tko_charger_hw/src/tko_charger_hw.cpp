@@ -83,13 +83,13 @@ float TKO_CHARGER::get_battery_percentage()
     uint8_t battery_soc = get_battery_soc();
     switch (battery_soc) {
         case 0:
-            return 1.0;
-        case 1:
             return 0.75;
-        case 2:
+        case 1:
             return 0.5;
-        case 3:
+        case 2:
             return 0.25;
+        case 3:
+            return 0.0;
         default:
             return 0.0;
     }
