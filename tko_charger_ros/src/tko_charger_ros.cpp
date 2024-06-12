@@ -37,36 +37,63 @@ void TKOChargerRos::init_charger_hw()
 
 void TKOChargerRos::Timer1HzCallbackCallback(const ros::TimerEvent &event)
 {
-  charger_hw.read(0x00,20);
 
-  // battery topic
-  battery_msg.header.stamp = ros::Time::now();
-  battery_msg.voltage = charger_hw.get_charger_voltage();
-  battery_msg.temperature = charger_hw.get_temperature();
-  battery_msg.current = charger_hw.get_load_current();
-  battery_msg.charge = charger_hw.get_charging_current();
-  battery_msg.percentage = charger_hw.get_battery_percentage();
-  battery_msg.power_supply_status = charger_hw.get_charge_step();
-  battery_msg.power_supply_health = charger_hw.get_charger_error();
-  battery_msg.present = charger_hw.get_charge_detected();
-  battery_state_pub.publish(battery_msg);
+  int return_code = charger_hw.read(0x00, 20);
 
-  //state topic
-  charger_state.header.stamp = ros::Time::now();
-  charger_state.battery_soc = charger_hw.get_battery_percentage();
-  charger_state.battery_warning = charger_hw.get_battery_warning_string();
-  charger_state.charger_detected = charger_hw.get_charge_detected();
-  charger_state.charger_step = charger_hw.get_charge_step();
-  charger_state.emergency_button = charger_hw.get_emergency_button();
-  charger_state.manual_break = charger_hw.get_manual_break_button();
-  charger_state.charger_error = charger_hw.get_charger_error();
-  charger_state.battery_voltage = charger_hw.get_battery_voltage();
-  charger_state.charger_voltage = charger_hw.get_charger_voltage();
-  charger_state.load_voltage = charger_hw.get_load_voltage();
-  charger_state.charging_current = charger_hw.get_charging_current();
-  charger_state.load_current = charger_hw.get_load_current();
-  charger_state.temperature = charger_hw.get_temperature();
-  charger_state_pub.publish(charger_state);
+  switch (return_code)
+  {
+  case 0:
+    // If read returns 0, proceed with updates.
+
+    // battery topic
+    battery_msg.header.stamp = ros::Time::now();
+    battery_msg.voltage = charger_hw.get_charger_voltage();
+    battery_msg.temperature = charger_hw.get_temperature();
+    battery_msg.current = charger_hw.get_load_current();
+    battery_msg.charge = charger_hw.get_charging_current();
+    battery_msg.percentage = charger_hw.get_battery_percentage();
+    battery_msg.power_supply_status = charger_hw.get_charge_detected();
+    battery_msg.power_supply_health = charger_hw.get_charger_error();
+    battery_msg.present = charger_hw.get_charge_detected();
+    battery_state_pub.publish(battery_msg);
+
+    // state topic
+    charger_state.header.stamp = ros::Time::now();
+    charger_state.battery_soc = charger_hw.get_battery_percentage();
+    charger_state.battery_warning = charger_hw.get_battery_warning_string();
+    charger_state.charger_detected = charger_hw.get_charge_detected();
+    charger_state.charger_step = charger_hw.get_charge_step();
+    charger_state.emergency_button = charger_hw.get_emergency_button();
+    charger_state.manual_break = charger_hw.get_manual_break_button();
+    charger_state.charger_error = charger_hw.get_charger_error();
+    charger_state.battery_voltage = charger_hw.get_battery_voltage();
+    charger_state.charger_voltage = charger_hw.get_charger_voltage();
+    charger_state.load_voltage = charger_hw.get_load_voltage();
+    charger_state.charging_current = charger_hw.get_charging_current();
+    charger_state.load_current = charger_hw.get_load_current();
+    charger_state.temperature = charger_hw.get_temperature();
+    charger_state_pub.publish(charger_state);
+    break;
+
+  case 1:
+    ROS_DEBUG_STREAM("CRC check error");
+    break;
+
+  case 2:
+      ROS_DEBUG_STREAM("Message length error");
+      break;
+  
+  case 3:
+    ROS_DEBUG_STREAM("Error code detected");
+    break;
+
+  case 4:
+    ROS_DEBUG_STREAM("Address code error");
+    break;
+  
+  default:
+    break;
+  }
 }
 
 void TKOChargerRos::Timer10HzCallbackCallback(const ros::TimerEvent &event)
