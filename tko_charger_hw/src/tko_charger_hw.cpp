@@ -24,6 +24,8 @@ void TKO_CHARGER::begin(std::string port, int baudrate, uint8_t _ID)
 
 uint8_t TKO_CHARGER::read(uint8_t register_addr, uint8_t data_length)
 {
+    uint8_t rx_serial_buff[26] = {0}; // tom edit
+
     // memset(hex_cmd, 0, sizeof(hex_cmd));
     hex_cmd[0] = ID;
     hex_cmd[1] = READ;
@@ -37,21 +39,81 @@ uint8_t TKO_CHARGER::read(uint8_t register_addr, uint8_t data_length)
 
     uint8_t return_byte_length = COMMAND_LENGTH+data_length;
     std::string line = _serial.read(return_byte_length);
+
+    /****************** Tom Edit ******************/ 
+    if (uint8_t(line[0]) == 0x50) {
+        rx_serial_buff[0] = uint8_t(line[0]) ;
+    }else{
+        // address error
+        _serial.flushInput();
+        printf("address error read_charger\n");
+        return 4; 
+    }
+
+    if (uint8_t(line[1]) < 0x80) {
+        rx_serial_buff[1] = uint8_t(line[1]) ;
+    }else{
+        // cmd error
+        _serial.flushInput();
+        printf("cmd error read_charger: %02x\n", uint8_t(line[2]));
+        return 3; 
+    }
+
+    uint8_t rx_reg_address = uint8_t(line[2]);
+    uint8_t rx_data_length = uint8_t(line[3]);
+    if ( (rx_reg_address + rx_data_length) < 21 ){
+        return_byte_length = rx_data_length + COMMAND_LENGTH ;
+    }else{
+        // lenght error
+         _serial.flushInput();       
+        printf("lenght error read_charger: %d\n", uint8_t(line[3]));
+        return 2;        
+    }
+
+    for (uint8_t i = 2; i < return_byte_length; i++)
+    {
+        rx_serial_buff[i] = uint8_t(line[i]);
+    }
+
+    if (crc16(rx_serial_buff, return_byte_length) != 0){
+        // crc error 
+        _serial.flushInput();
+        printf("crc check error read_charger\n");
+        return 1;
+    }
+
+    receive_hex[0] = rx_serial_buff[0];     // device address
+    receive_hex[1] = rx_serial_buff[1];     // cmd code
+    receive_hex[2] = rx_serial_buff[2];     // data register address
+    receive_hex[3] = rx_serial_buff[3];     // data lenght
+
+    for (uint8_t i = 4; i < return_byte_length; i++)
+    {
+        receive_hex[i + rx_reg_address] = rx_serial_buff[i];
+    }
+
+    _serial.flushOutput();
+    _serial.flushInput();
+
+    /****************** End Tom Edit ******************/ 
+    /*
     // convert string to hex
     for (uint8_t i = 0; i < return_byte_length; i++)
     {
         receive_hex[register_addr + i] = uint8_t(line[i]);
-        // printf("rec %d, %02x\n", i, receive_hex[register_addr + i]);
+        printf("rec %d, %02x\n", i, receive_hex[register_addr + i]);
     }
 
     // crc check of received data
     if (crc16(receive_hex + register_addr, return_byte_length) != 0)
     {
-        _serial.flush();
+        // _serial.flush();
+        _serial.flushInput();
         printf("crc check error read_charger\n");
         return 1;
     }
     // print_rec_hex(register_addr, return_byte_length);
+    */
 
     return 0;
 }
@@ -151,7 +213,8 @@ uint8_t TKO_CHARGER::get_charger_error()
 float TKO_CHARGER::get_battery_voltage()
 {
     uint16_t battery_voltage = receive_hex[13] + (receive_hex[12] << 8);
-    return (float)battery_voltage/1000.f;
+    // return (float)battery_voltage/1000.f;
+    return (float)battery_voltage*0.004883f; //Tom edit
 }
 
 float TKO_CHARGER::get_charger_voltage()
@@ -175,7 +238,8 @@ float TKO_CHARGER::get_charging_current()
 float TKO_CHARGER::get_load_current()
 {
     uint16_t load_current = receive_hex[21] + (receive_hex[20] << 8);
-    return ((float)load_current - 1638.f) * 0.016;
+    // return ((float)load_current - 1638.f) * 0.016;
+    return ((float)load_current - 32768) * 0.01119;  //Tom edit
 }
 
 
