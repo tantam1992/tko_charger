@@ -16,27 +16,15 @@ void TKO_CHARGER::begin(std::string port, int baudrate, uint8_t _ID)
     _serial.setBaudrate(baudrate);
     serial::Timeout timeout = serial::Timeout::simpleTimeout(200);
     _serial.setTimeout(timeout);
+
     _serial.open();
     _serial.flushInput();
-    //std::cout << "SERIAL OK!" << std::endl;
-    printMessageWithTimestamp("SERIAL OK!");
-
+    std::cout << "SERIAL OK!" << std::endl;
 }
 
 uint8_t TKO_CHARGER::read(uint8_t register_addr, uint8_t data_length)
 {
-
-    if (_serial.isOpen())
-    {
-    }
-    else
-    {
-        std::cout << "SERIAL Port Not Open!" << std::endl;
-        return SERIAL_ERR_NOT_OPEN;
-    }
-
     uint8_t rx_serial_buff[26] = {0}; // tom edit
-    std::string line;
 
     // memset(hex_cmd, 0, sizeof(hex_cmd));
     hex_cmd[0] = ID;
@@ -46,95 +34,40 @@ uint8_t TKO_CHARGER::read(uint8_t register_addr, uint8_t data_length)
 
     calculate_crc();
 
-    try
-    {
-        _serial.write(hex_cmd, COMMAND_LENGTH);
-    }
-    catch (const serial::IOException &e)
-    {
-        std::cerr << "Serial IO exception in Write: " << e.what() << std::endl;
-        return SERIAL_ERR_WRITE;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Exception in Write: " << e.what() << std::endl;
-        return SERIAL_ERR_WRITE;
-    }
-
+    _serial.write(hex_cmd, COMMAND_LENGTH);
     // print_hex_cmd(COMMAND_LENGTH);
-    // TKO_CHARGER::sleep(1);
-    uint8_t return_byte_length = COMMAND_LENGTH + data_length;
-    line.clear();
 
-    try
-    {
-        line = _serial.read(return_byte_length);
-    }
-    catch (const serial::IOException &e)
-    {
-        std::cerr << "Serial IO exception in Read: " << e.what() << std::endl;
-        return SERIAL_ERR_READ;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Exception in Read: " << e.what() << std::endl;
-        return SERIAL_ERR_READ;
-    }
+    uint8_t return_byte_length = COMMAND_LENGTH+data_length;
+    std::string line = _serial.read(return_byte_length);
 
-    if (line.size() > 0){
-
+    /****************** Tom Edit ******************/ 
+    if (uint8_t(line[0]) == 0x50) {
+        rx_serial_buff[0] = uint8_t(line[0]) ;
     }else{
-        // no receive data
-        _serial.flushOutput();
-        _serial.flushInput();
-        // std::cout << "SERIAL No Data Received!" << std::endl;
-        printMessageWithTimestamp("SERIAL No Data Received!");
-        line.clear(); 
-        return SERIAL_ERR_NO_DATA;
-    }
-
-    if (uint8_t(line[0]) == 0x50)
-    {
-        rx_serial_buff[0] = uint8_t(line[0]);
-    }
-    else
-    {
         // address error
         _serial.flushInput();
-        printf("address error read_charger: %02x\n", uint8_t(line[0]));
-        // std::cout << "SERIAL Address Error!" << std::endl;
-        printMessageWithTimestamp("SERIAL Address Error!");
-        return SERIAL_ERR_ADDRESS;
+        printf("address error read_charger\n");
+        return 4; 
     }
 
-    if (uint8_t(line[1]) < 0x80)
-    {
-        rx_serial_buff[1] = uint8_t(line[1]);
-    }
-    else
-    {
+    if (uint8_t(line[1]) < 0x80) {
+        rx_serial_buff[1] = uint8_t(line[1]) ;
+    }else{
         // cmd error
         _serial.flushInput();
         printf("cmd error read_charger: %02x\n", uint8_t(line[2]));
-        // std::cout << "SERIAL CMD Error!" << std::endl;
-        printMessageWithTimestamp("SERIAL CMD Error!");
-        return SERIAL_ERR_CMD;
+        return 3; 
     }
 
     uint8_t rx_reg_address = uint8_t(line[2]);
     uint8_t rx_data_length = uint8_t(line[3]);
-    if ((rx_reg_address + rx_data_length) < 21)
-    {
-        return_byte_length = rx_data_length + COMMAND_LENGTH;
-    }
-    else
-    {
+    if ( (rx_reg_address + rx_data_length) < 21 ){
+        return_byte_length = rx_data_length + COMMAND_LENGTH ;
+    }else{
         // lenght error
-        _serial.flushInput();
+         _serial.flushInput();       
         printf("lenght error read_charger: %d\n", uint8_t(line[3]));
-        // std::cout << "SERIAL Lenght Error!" << std::endl;
-        printMessageWithTimestamp("SERIAL Lenght Error!");
-        return SERIAL_ERR_LEN;
+        return 2;        
     }
 
     for (uint8_t i = 2; i < return_byte_length; i++)
@@ -142,31 +75,27 @@ uint8_t TKO_CHARGER::read(uint8_t register_addr, uint8_t data_length)
         rx_serial_buff[i] = uint8_t(line[i]);
     }
 
-    if (crc16(rx_serial_buff, return_byte_length) != 0)
-    {
-        // crc error
+    if (crc16(rx_serial_buff, return_byte_length) != 0){
+        // crc error 
         _serial.flushInput();
         printf("crc check error read_charger\n");
-        // std::cout << "SERIAL CRC Error!" << std::endl;
-        printMessageWithTimestamp("SERIAL CRC Error!");
-        return SERIAL_ERR_CRC;
+        return 1;
     }
 
-    receive_hex[0] = rx_serial_buff[0]; // device address
-    receive_hex[1] = rx_serial_buff[1]; // cmd code
-    receive_hex[2] = rx_serial_buff[2]; // data register address
-    receive_hex[3] = rx_serial_buff[3]; // data lenght
+    receive_hex[0] = rx_serial_buff[0];     // device address
+    receive_hex[1] = rx_serial_buff[1];     // cmd code
+    receive_hex[2] = rx_serial_buff[2];     // data register address
+    receive_hex[3] = rx_serial_buff[3];     // data lenght
 
     for (uint8_t i = 4; i < return_byte_length; i++)
     {
         receive_hex[i + rx_reg_address] = rx_serial_buff[i];
     }
 
-    line.clear(); 
     _serial.flushOutput();
     _serial.flushInput();
 
-    /****************** End Tom Edit ******************/
+    /****************** End Tom Edit ******************/ 
     /*
     // convert string to hex
     for (uint8_t i = 0; i < return_byte_length; i++)
@@ -187,16 +116,6 @@ uint8_t TKO_CHARGER::read(uint8_t register_addr, uint8_t data_length)
     */
 
     return 0;
-}
-
-void TKO_CHARGER::closeConnect()
-{
-    _serial.flushOutput();
-    _serial.flushInput();
-    _serial.close();
-    //std::cout << "SERIAL Close!" << std::endl;
-    printMessageWithTimestamp("SERIAL Close!");
-
 }
 
 void TKO_CHARGER::calculate_crc()
@@ -224,19 +143,19 @@ uint8_t TKO_CHARGER::get_battery_soc()
 float TKO_CHARGER::get_battery_percentage()
 {
     uint8_t battery_soc = get_battery_soc();
-    switch (battery_soc)
-    {
-    case 0:
-        return 0.75;
-    case 1:
-        return 0.5;
-    case 2:
-        return 0.25;
-    case 3:
-        return 0.0;
-    default:
-        return 0.0;
+    switch (battery_soc) {
+        case 0:
+            return 0.75;
+        case 1:
+            return 0.5;
+        case 2:
+            return 0.25;
+        case 3:
+            return 0.0;
+        default:
+            return 0.0;
     }
+
 }
 
 uint8_t TKO_CHARGER::get_battery_warning()
@@ -255,16 +174,13 @@ std::string TKO_CHARGER::get_battery_warning_string()
     {
         return "over temperature warning";
     }
-    else if (error_code == 2)
-    {
+    else if (error_code == 2){
         return "over voltage warning";
     }
-    else if (error_code == 4)
-    {
+    else if (error_code == 4){
         return "under voltage warning";
     }
-    else
-    {
+    else {
         return "Unknown Warning";
     }
 }
@@ -298,35 +214,34 @@ float TKO_CHARGER::get_battery_voltage()
 {
     uint16_t battery_voltage = receive_hex[13] + (receive_hex[12] << 8);
     // return (float)battery_voltage/1000.f;
-    // return (float)battery_voltage*0.004883f; //Tom edit
-    return (float)(round(battery_voltage * 4.883f) / 1000);
+    return (float)battery_voltage*0.004883f; //Tom edit
 }
 
 float TKO_CHARGER::get_charger_voltage()
 {
     uint16_t charger_voltage = receive_hex[15] + (receive_hex[14] << 8);
-    return (round((float)charger_voltage) / 1000.f);
+    return float(charger_voltage)/1000.f;
 }
 
 float TKO_CHARGER::get_load_voltage()
 {
     uint16_t load_voltage = receive_hex[17] + (receive_hex[16] << 8);
-    return (round((float)load_voltage) / 1000.f);
+    return (float)load_voltage/1000.f;
 }
 
 float TKO_CHARGER::get_charging_current()
 {
     uint16_t charging_current = receive_hex[19] + (receive_hex[18] << 8);
-    return (round(((float)charging_current - 8190.f) * 16) / 1000.f);
+    return ((float)charging_current - 8190.f) * 0.016;
 }
 
 float TKO_CHARGER::get_load_current()
 {
     uint16_t load_current = receive_hex[21] + (receive_hex[20] << 8);
     // return ((float)load_current - 1638.f) * 0.016;
-    // return ((float)load_current - 32768) * 0.01119;  //Tom edit
-    return (round(((float)load_current - 32768) * 11.19) / 1000.f);
+    return ((float)load_current - 32768) * 0.01119;  //Tom edit
 }
+
 
 float TKO_CHARGER::get_temperature()
 {
@@ -353,14 +268,4 @@ void TKO_CHARGER::print_rec_hex(uint8_t register_addr, uint8_t num_bytes) const
     {
         printf("rec: %d, %02x\n", i, receive_hex[register_addr + i]);
     }
-}
-
-void TKO_CHARGER::printMessageWithTimestamp(const std::string &message)
-{
-    // Get current time as time_t
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-
-    // Format the time to a readable format
-    std::cout << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << ": " << message << std::endl;
 }

@@ -7,10 +7,6 @@
 #include "tko_charger_hw/tko_charger_hw.h"
 #include "tko_charger_interfaces/TkoCharger.h"
 
-#define MAX_ERR_RETRY                     3
-#define MAX_TIMEOUT_RETRY                 2
-#define SER_STAT_CONNECTED                1
-#define SER_STAT_DISCONNECT               0
 
 TKO_CHARGER charger_hw;
 class TKOChargerRos
@@ -38,7 +34,7 @@ private:
     ros::Publisher charger_state_pub;
 
     std::string serial_port;
-    int serial_stat;
 };
+
 
 #endif

@@ -18,17 +18,6 @@
 #include "crc_check.h"
 
 #include <chrono>
-#include <iomanip>
-#include <ctime>
-
-#define SERIAL_ERR_CRC                      1
-#define SERIAL_ERR_LEN                      2
-#define SERIAL_ERR_CMD                      3
-#define SERIAL_ERR_ADDRESS                  4
-#define SERIAL_ERR_NOT_OPEN                 5
-#define SERIAL_ERR_NO_DATA                  6
-#define SERIAL_ERR_WRITE                    7   
-#define SERIAL_ERR_READ                     8
 
 class TKO_CHARGER
 {
@@ -39,7 +28,7 @@ private:
     uint8_t receive_hex[26] = {0};
     // Dummy Data
     // uint8_t receive_hex[26] = {0x50, 0x03, 0x00, 0x14, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x8B, 0xD9, 0x00, 0x4E, 0x8C, 0x69, 0x36, 0x78, 0x3C, 0xFC, 0x00, 0x00, 0xFE, 0xBF};
- 
+
     // PROTOCOL
     uint8_t ID = 0x00;
     const uint8_t READ = 0x03;
@@ -89,7 +78,6 @@ private:
      */
     void print_rec_hex(uint8_t register_addr, uint8_t num_bytes) const;
 
-
 public:
     void sleep(unsigned long milliseconds);
 
@@ -111,17 +99,6 @@ public:
      * @return 0 if ok, 1 if crc read error
      */
     uint8_t read(uint8_t register_addr, uint8_t data_length);
-
-    /**
-    *@brief  close serial port    
-     */
-    void closeConnect();
-
-     /**
-    @brief print message with system timestamp
-    @param message string message to print    
-     */
-    void printMessageWithTimestamp(const std::string& message) ;    
 
 // *****************************************************
 // ------------------ GETTER FUNCTIONS -----------------
