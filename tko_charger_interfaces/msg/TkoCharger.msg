@@ -4,6 +4,7 @@ uint8 version
 float32 battery_soc
 string battery_warning
 bool charger_detected
+bool charging
 uint8 charger_step
 bool emergency_button
 bool manual_break
