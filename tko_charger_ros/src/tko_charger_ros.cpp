@@ -72,20 +72,27 @@ void TKOChargerRos::Timer2HzCallbackCallback(const ros::TimerEvent &event)
         charger_state.emergency_button = charger_hw.get_emergency_button();
         charger_state.manual_break = charger_hw.get_manual_break_button();
         charger_state.charger_error = charger_hw.get_charger_error();
-
         float battery_v = charger_hw.get_battery_voltage();
         float charger_v = charger_hw.get_charger_voltage();
-
         charger_state.battery_voltage = battery_v;
         charger_state.charger_voltage = charger_v;
         charger_state.load_voltage = charger_hw.get_load_voltage();
         charger_state.charging_current = charger_hw.get_charging_current();
-        charger_state.load_current = charger_hw.get_load_current();
+        float load_c = charger_hw.get_load_current();
+        charger_state.load_current = load_c;
         charger_state.temperature = charger_hw.get_temperature();
 
         // Charging detection
-        charger_state.charging = (fabs(charger_v - battery_v) <= 10.0);
-
+        if (fabs(charger_v - battery_v) <= 10.0) {
+          if (battery_v < 52.0 && load_c < 1.0) {
+            charger_state.charging = false;
+          } else {
+            charger_state.charging = true;
+          }
+        } else {
+          charger_state.charging = false;
+        }
+        
         charger_state_pub.publish(charger_state);
         break;
       }
