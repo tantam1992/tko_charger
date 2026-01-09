@@ -253,18 +253,22 @@ std::string TKO_CHARGER::get_battery_warning_string()
     }
     else if (error_code == 1)
     {
+        printMessageWithTimestamp("over temperature warning");
         return "over temperature warning";
     }
     else if (error_code == 2)
     {
+        printMessageWithTimestamp("over voltage warning");
         return "over voltage warning";
     }
     else if (error_code == 4)
     {
+        printMessageWithTimestamp("under voltage warning");
         return "under voltage warning";
     }
     else
     {
+        printMessageWithTimestamp("Unknown warning");
         return "Unknown Warning";
     }
 }

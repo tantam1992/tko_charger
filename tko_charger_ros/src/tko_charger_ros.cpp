@@ -92,6 +92,11 @@ void TKOChargerRos::Timer2HzCallbackCallback(const ros::TimerEvent &event)
         } else {
           charger_state.charging = false;
         }
+
+        // Log the battery warning string
+        if (charger_state.battery_warning != "No Warning") {
+          ROS_WARN_STREAM("Battery Warning: " << charger_state.battery_warning);
+        }
         
         charger_state_pub.publish(charger_state);
         break;
