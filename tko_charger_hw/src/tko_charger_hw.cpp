@@ -317,7 +317,7 @@ float TKO_CHARGER::get_load_voltage()
 float TKO_CHARGER::get_charging_current()
 {
     uint16_t charging_current = receive_hex[19] + (receive_hex[18] << 8);
-    return (round(((float)charging_current - 8190.f) * 16) / 1000.f);
+    return (round(((float)charging_current - 1638.f) * 1.007));
 }
 
 float TKO_CHARGER::get_load_current()
